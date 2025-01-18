@@ -1,0 +1,3 @@
+fdefcd2c-90ad-433b-b764-49a0e31bf986 #not good  https://customerportal.coinapi.io/apikeys
+
+DPHWJTPVYUPO4RHS #better, key to apitest.py

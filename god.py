@@ -112,7 +112,7 @@ for x, curr_price in enumerate(float_open):  # Assuming open_values_normalized i
     print(f"Money: [{money}]\n")
     print(f"Stock: [{bitcoin}]\n")\
     
-    userinput = input(" :")
+    userinput = input("1HourLater:")
 
 
 
