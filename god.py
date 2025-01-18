@@ -45,4 +45,5 @@ def processTrans(decision, open):
     if(decision == 2 and bitcoin > 0):
         money = bitcoin * open
         bitcoin = 0
+    print("Bitcoin: " + bitcoin + "Money: " + money)
         
