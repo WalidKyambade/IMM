@@ -1,16 +1,13 @@
 import csv
 from decimal import Decimal
 
-init_money = 300
-init_bitcoin = 0
-
-BUY_PERCENT = -2  # Example: Buy when price decreases by 2%
-SELL_PERCENT = 2  # Example: Sell when price increases by 2%
+BUY_PERCENT = -0.20  # Example: Buy when price decreases by 20%
+SELL_PERCENT = 0.20  # Example: Sell when price increases by 20%
 
 money = 1000 # Example: Starting with 1000 money
 bitcoin = 0 # Example: Initially owning no Bitcoin
 
-filename = "Binance_1INCHBTC_1h.csv" 
+
 
 #Read from CSV. Date, Open, Change%
 #Formatted in vec.[open]
@@ -24,12 +21,29 @@ def basic_algo(today_change):
         return 2
 
 
-def open_values_normalized(filename):
+def convert_to_floats(string_array):
+    """
+    Convert an array of numbered strings to an array of floats.
+    
+    Args:
+        string_array (list): A list of strings representing numbers.
+    
+    Returns:
+        list: A list of floats converted from the input strings.
+    """
+    try:
+        return [float(item) for item in string_array]
+    except ValueError as e:
+        print(f"Error: One of the items is not a valid number. {e}")
+        return []
+
+
+def open_values_normalized():
     # Initialize the list for storing Open values
     open_values = []
 
     # Read the CSV file
-    with open(filename, mode='r') as file:
+    with open("infinite money machine/IMM/Binance_1INCHBTC_1h.csv", mode='r') as file:
         csv_reader = csv.DictReader(file)
         
         for row in csv_reader:
@@ -56,50 +70,49 @@ def processTrans(decision, open):
 # main algorithm that runs every hour, assesses whether or not to buy, hold, or sell, based
 # on last price recorded
 
-def main():
+# Function to perform the action based on the percent change
+def switch(percent_change, curr_price):
+    global money, bitcoin  # To modify global variables money and bitcoin
 
-    # Function to perform the action based on the percent change
-    def switch(percent_change, curr_price):
-        global money, bitcoin  # To modify global variables money and bitcoin
-
-        if(percent_change < BUY_PERCENT):
-            # If no money available
-            if(money < curr_price):
-                pass  # Do nothing if we can't afford to buy
-            else:
-                # Full buy
-                bitcoin = money / curr_price
-                money = 0  # All money is used to buy Bitcoin
-                print(f"Buying Stock at {curr_price}, Total Stock: {bitcoin}")
-
-        elif(percent_change > SELL_PERCENT):
-            # If no Bitcoin held
-            if(bitcoin == 0):
-                pass  # Do nothing if no Bitcoin to sell
-            else:
-                # Full sell
-                money = money + (bitcoin * curr_price)  # Sell all Bitcoin
-                bitcoin = 0  # Reset Bitcoin ownership
-                print(f"Selling Stock at {curr_price}, Total money: {money}")
-
-    # Main loop
-    full_open = open_values_normalized(filename) #added this to save time
-    for x, curr_price in enumerate(full_open):  # Assuming open_values_normalized is an iterable
-        if x - 1 < 0:
-            last_price = curr_price  # No previous price if at the start
+    if(percent_change < BUY_PERCENT):
+        # If no money available
+        if(money < curr_price):
+            pass  # Do nothing if we can't afford to buy
         else:
-            last_price = open_values_normalized[x - 1]  # Previous price
+            # Full buy
+            bitcoin = money / curr_price
+            money = 0  # All money is used to buy Bitcoin
+            print(f"Buying Stock at {curr_price}, Total Stock: {bitcoin}")
 
-        # Calculate percent change
-        percent_change = ((curr_price - last_price) / last_price) * 100
-        
-        # Call switch to handle the decision-making process
-        switch(percent_change, curr_price)
+    elif(percent_change > SELL_PERCENT):
+        # If no Bitcoin held
+        if(bitcoin == 0):
+            pass  # Do nothing if no Bitcoin to sell
+        else:
+            # Full sell
+            money = money + (bitcoin * curr_price)  # Sell all Bitcoin
+            bitcoin = 0  # Reset Bitcoin ownership
+            print(f"Selling Stock at {curr_price}, Total money: {money}")
 
-        print(f"Money: [{money}]\n")
-        print(f"Stock: [{bitcoin}]\n")\
-        
-        userinput = input(" :")
+# Main loop
+full_open = open_values_normalized() #added this to save time
+float_open = convert_to_floats(full_open)
+for x, curr_price in enumerate(float_open):  # Assuming open_values_normalized is an iterable
+    if x - 1 < 0:
+        last_price = curr_price  # No previous price if at the start
+    else:
+        last_price = float_open[x - 1]  # Previous price
+
+    # Calculate percent change
+    percent_change = ((curr_price - last_price) / last_price) * 100
+    
+    # Call switch to handle the decision-making process
+    switch(percent_change, curr_price)
+
+    print(f"Money: [{money}]\n")
+    print(f"Stock: [{bitcoin}]\n")\
+    
+    userinput = input(" :")
 
 
 
