@@ -44,7 +44,7 @@ def open_values_normalized():
     open_values = []
 
     # Read the CSV file
-    with open("IMM/Binance_1INCHBTC_1h.csv", mode='r') as file:
+    with open("IMM/Binance_1INCHBTC_1hrecent.csv", mode='r') as file:
         csv_reader = csv.DictReader(file)
         
         for row in csv_reader:
