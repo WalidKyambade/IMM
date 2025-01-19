@@ -7,7 +7,7 @@ SELL_PERCENT = 0.20  # Example: Sell when price increases by 20%
 money = 1000 # Example: Starting with 1000 money
 bitcoin = 0 # Example: Initially owning no Bitcoin
 
-for i in open_values_normalized:
+#for i in open_values_normalized:
     
 
 #Read from CSV. Date, Open, Change%
@@ -44,7 +44,7 @@ def open_values_normalized():
     open_values = []
 
     # Read the CSV file
-    with open("infinite money machine/IMM/Binance_1INCHBTC_1h.csv", mode='r') as file:
+    with open("IMM/Binance_1INCHBTC_1h.csv", mode='r') as file:
         csv_reader = csv.DictReader(file)
         
         for row in csv_reader:
@@ -111,9 +111,15 @@ for x, curr_price in enumerate(float_open):  # Assuming open_values_normalized i
     switch(percent_change, curr_price)
 
     print(f"Money: [{money}]\n")
-    print(f"Stock: [{bitcoin}]\n")\
+    print(f"Stock: [{bitcoin}]\n")
     
-    userinput = input("1HourLater:")
+    #userinput = input("1HourLater:")
+
+#Sells All At the End so We Can See the Profit. Then Prints the Bitcoin and Money
+switch(0.21, float_open[len(float_open) - 1])
+
+print(f"Money: [{money}]\n")
+print(f"Stock: [{bitcoin}]\n")
 
 
 
