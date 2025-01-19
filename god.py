@@ -30,7 +30,8 @@ open_values_normalized = [str(Decimal(value)) for value in open_values]
 # Now you have `open_values_normalized_float` with the converted Open values
 print(open_values_normalized)
 
-
+for i in open_values_normalized:
+    
 
 #Determine Whether to Buy, Sell, or Neutral from the Past x Number of Days
 def basic_algo(today_change):
