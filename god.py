@@ -7,20 +7,11 @@ SELL_PERCENT = 0.20  # Example: Sell when price increases by 20%
 money = 1000 # Example: Starting with 1000 money
 bitcoin = 0 # Example: Initially owning no Bitcoin
 
-#for i in open_values_normalized:
-    
+amtTrades = 0
+#Fee is 1 - % taken
+fee = 1
 
-#Read from CSV. Date, Open, Change%
-#Formatted in vec.[open]
-
-#Determine Whether to Buy, Sell, or Neutral from the Past x Number of Days
-def basic_algo(today_change):
-    #Returns 0 if Neutral, 1 if Buy, 2 if Sell
-    if(abs(today_change)):
-        return 1
-    else:
-        return 2
-
+file_path = "IMM/Binance_1INCHBTC_1hrecent.csv"
 
 def convert_to_floats(string_array):
     """
@@ -39,41 +30,43 @@ def convert_to_floats(string_array):
         return []
 
 
-def open_values_normalized():
+def open_values_normalized_and_mirrored(file_path):
+    """
+    Reads a CSV file, extracts the 'Open' column, converts its values 
+    from scientific notation to a regular float format using Decimal, 
+    and mirrors (reverses) the order of the values.
+    
+    Args:
+        file_path (str): Path to the CSV file.
+    
+    Returns:
+        list: A list of mirrored 'Open' values in regular float format.
+    """
     # Initialize the list for storing Open values
     open_values = []
 
     # Read the CSV file
-    with open("IMM/Binance_1INCHBTC_1hrecent.csv", mode='r') as file:
+    with open(file_path, mode='r') as file:
         csv_reader = csv.DictReader(file)
         
         for row in csv_reader:
             # Assuming the 'Open' column contains the Open values
             open_values.append(float(row['Open']))
 
-    # Convert the Open values from scientific notation to regular format using Decimal
-    open_values_normalized = [str(Decimal(value)) for value in open_values]
+    # Convert the Open values to regular float format using Decimal
+    open_values_normalized = [float(Decimal(value)) for value in open_values]
 
-    # Now you have `open_values_normalized_float` with the converted Open values
+    # Mirror the list (reverse the order)
+    open_values_normalized.reverse()
+
     return open_values_normalized
-
-#Determine Final Bitcoin and Money
-def processTrans(decision, open):
-    if(decision == 1 and money != 0):
-        bitcoin = open/money
-        money = 0
-    if(decision == 2 and bitcoin > 0):
-        money = bitcoin * open
-        bitcoin = 0
-    print("Bitcoin: " + bitcoin + "Money: " + money)
-        
 
 # main algorithm that runs every hour, assesses whether or not to buy, hold, or sell, based
 # on last price recorded
 
 # Function to perform the action based on the percent change
 def switch(percent_change, curr_price):
-    global money, bitcoin  # To modify global variables money and bitcoin
+    global money, bitcoin, amtTrades  # To modify global variables money and bitcoin
 
     if(percent_change < BUY_PERCENT):
         # If no money available
@@ -82,6 +75,9 @@ def switch(percent_change, curr_price):
         else:
             # Full buy
             bitcoin = money / curr_price
+            #Add Coinbase Fees
+            bitcoin *= fee
+            amtTrades += 1
             money = 0  # All money is used to buy Bitcoin
             print(f"Buying Stock at {curr_price}, Total Stock: {bitcoin}")
 
@@ -92,11 +88,14 @@ def switch(percent_change, curr_price):
         else:
             # Full sell
             money = money + (bitcoin * curr_price)  # Sell all Bitcoin
+            #Add Coinbase Fees
+            money *= fee
+            amtTrades += 1
             bitcoin = 0  # Reset Bitcoin ownership
             print(f"Selling Stock at {curr_price}, Total money: {money}")
 
 # Main loop
-full_open = open_values_normalized() #added this to save time
+full_open = open_values_normalized_and_mirrored(file_path) #added this to save time
 float_open = convert_to_floats(full_open)
 for x, curr_price in enumerate(float_open):  # Assuming open_values_normalized is an iterable
     if x - 1 < 0:
@@ -112,14 +111,13 @@ for x, curr_price in enumerate(float_open):  # Assuming open_values_normalized i
 
     print(f"Money: [{money}]\n")
     print(f"Stock: [{bitcoin}]\n")
-    
-    #userinput = input("1HourLater:")
 
 #Sells All At the End so We Can See the Profit. Then Prints the Bitcoin and Money
-switch(0.21, float_open[len(float_open) - 1])
+switch(SELL_PERCENT + 0.01, float_open[len(float_open) - 1])
 
 print(f"Money: [{money}]\n")
 print(f"Stock: [{bitcoin}]\n")
+print(f"NumTrades:{amtTrades}\n")
 
 
 
